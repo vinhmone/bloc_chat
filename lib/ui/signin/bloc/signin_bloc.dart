@@ -20,9 +20,9 @@ class SigninBloc extends Bloc<SigninEvent, SigninState> {
   }
 
   void _emailChanged(EmailChanged event, Emitter<SigninState> emit) {
-    print(event.email);
     if (event.email.isEmpty) {
       emit(state.copyWith(
+        email: '',
           status: SigninStatus.emailIsEmpty,
           message: SignInConstants.emailIsEmpty));
     } else {
@@ -33,6 +33,7 @@ class SigninBloc extends Bloc<SigninEvent, SigninState> {
             message: null));
       } else {
         emit(state.copyWith(
+            email: event.email,
             status: SigninStatus.emailNotValid,
             message: SignInConstants.emailNotValid));
       }
@@ -42,16 +43,19 @@ class SigninBloc extends Bloc<SigninEvent, SigninState> {
   void _passwordChanged(PasswordChanged event, Emitter<SigninState> emit) {
     if (event.password.isEmpty) {
       emit(state.copyWith(
+        password: '',
           status: SigninStatus.passwordIsEmpty,
           message: SignInConstants.passwordIsEmpty));
     } else {
+      print(_validatePassword(event.password));
       if (_validatePassword(event.password)) {
         emit(state.copyWith(
-            email: event.password,
+            password: event.password,
             status: SigninStatus.passwordIsValid,
             message: null));
       } else {
         emit(state.copyWith(
+            password: event.password,
             status: SigninStatus.passwordNotValid,
             message: SignInConstants.passwordNotValid));
       }

@@ -13,7 +13,7 @@ class EmailChanged extends SigninEvent {
   const EmailChanged({required this.email});
 
   @override
-  List<Object?> get props => [email];
+  List<Object> get props => [email];
 }
 
 class PasswordChanged extends SigninEvent {
@@ -22,7 +22,7 @@ class PasswordChanged extends SigninEvent {
   const PasswordChanged({required this.password});
 
   @override
-  List<Object?> get props => [password];
+  List<Object> get props => [password];
 }
 
 class LoginWithEmailRequested extends SigninEvent {
@@ -32,5 +32,5 @@ class LoginWithEmailRequested extends SigninEvent {
   const LoginWithEmailRequested({required this.email, required this.password});
 
   @override
-  List<Object?> get props => [email, password];
+  List<Object> get props => [email, password];
 }

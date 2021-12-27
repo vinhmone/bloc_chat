@@ -34,11 +34,16 @@ class SigninState extends Equatable {
         email: email ?? this.email,
         password: password ?? this.password,
         status: status ?? this.status,
-        message: message ?? this.message);
+        message: message);
   }
 
   static const initState = SigninState(email: '', password: '');
 
   @override
-  List<Object?> get props => [];
+  List<Object?> get props => [email, password, status, message];
+
+  @override
+  String toString() {
+    return 'SigninState{email: $email, password: $password, status: $status, message: $message}';
+  }
 }
