@@ -1,88 +1,102 @@
-import 'dart:async';
-
 import 'package:bloc/bloc.dart';
 import 'package:bloc_chat/data/repository/authentication_repository.dart';
 import 'package:bloc_chat/util/constants.dart';
 import 'package:equatable/equatable.dart';
 
-part 'signin_event.dart';
+part 'signup_event.dart';
+part 'signup_state.dart';
 
-part 'signin_state.dart';
-
-class SigninBloc extends Bloc<SigninEvent, SigninState> {
+class SignupBloc extends Bloc<SignupEvent, SignupState> {
   final AuthenticationRepository _repository;
 
-  SigninBloc({required AuthenticationRepository repository})
+  SignupBloc({required AuthenticationRepository repository})
       : _repository = repository,
-        super(SigninState.initState) {
+        super(SignupState.initState) {
+    on<UsernameChanged>(_usernameChange);
     on<EmailChanged>(_emailChanged);
     on<PasswordChanged>(_passwordChanged);
-    on<LoginWithEmailRequested>(_loginWithEmailRequested);
+    on<SignupWithEmailRequested>(_signupWithEmailRequested);
   }
 
-  void _emailChanged(EmailChanged event, Emitter<SigninState> emit) {
+  void _usernameChange(UsernameChanged event, Emitter<SignupState> emit) {
+    if (event.username.isEmpty) {
+      emit(state.copyWith(
+        username: '',
+        status: SignupStatus.usernameIsEmpty,
+        message: SignupConstants.usernameIsEmpty,
+      ));
+    } else {
+      emit(state.copyWith(
+        username: event.username,
+        status: SignupStatus.usernameIsValid,
+        message: null,
+      ));
+    }
+  }
+
+  void _emailChanged(EmailChanged event, Emitter<SignupState> emit) {
     if (event.email.isEmpty) {
       emit(state.copyWith(
           email: '',
-          status: SigninStatus.emailIsEmpty,
+          status: SignupStatus.emailIsEmpty,
           message: SignInConstants.emailIsEmpty));
     } else {
       if (_validateEmail(event.email)) {
         emit(state.copyWith(
             email: event.email,
-            status: SigninStatus.emailIsValid,
+            status: SignupStatus.emailIsValid,
             message: null));
       } else {
         emit(state.copyWith(
             email: event.email,
-            status: SigninStatus.emailNotValid,
+            status: SignupStatus.emailNotValid,
             message: SignInConstants.emailNotValid));
       }
     }
   }
 
-  void _passwordChanged(PasswordChanged event, Emitter<SigninState> emit) {
+  void _passwordChanged(PasswordChanged event, Emitter<SignupState> emit) {
     if (event.password.isEmpty) {
       emit(state.copyWith(
           password: '',
-          status: SigninStatus.passwordIsEmpty,
+          status: SignupStatus.passwordIsEmpty,
           message: SignInConstants.passwordIsEmpty));
     } else {
       if (_validatePassword(event.password)) {
         emit(state.copyWith(
             password: event.password,
-            status: SigninStatus.passwordIsValid,
+            status: SignupStatus.passwordIsValid,
             message: null));
       } else {
         emit(state.copyWith(
             password: event.password,
-            status: SigninStatus.passwordNotValid,
+            status: SignupStatus.passwordNotValid,
             message: SignInConstants.passwordNotValid));
       }
     }
   }
 
-  Future _loginWithEmailRequested(
-      LoginWithEmailRequested event, Emitter<SigninState> emit) async {
+  Future _signupWithEmailRequested(
+      SignupWithEmailRequested event, Emitter<SignupState> emit) async {
     if (_validateEmail(state.email) && _validatePassword(state.password)) {
       emit(state.copyWith(
           email: state.email,
           password: state.password,
-          status: SigninStatus.submissionInProgress,
-          message: SignInConstants.submissionInProgress));
+          status: SignupStatus.submissionInProgress,
+          message: SignupConstants.submissionInProgress));
       try {
-        await _repository.signin(email: state.email, password: state.password);
+        await _repository.signup(email: state.email, password: state.password);
         emit(state.copyWith(
-          status: SigninStatus.submissionSuccess,
-          message: '${AppConstants.signinSuccess} + ${state.email}',
+          status: SignupStatus.submissionSuccess,
+          message: AppConstants.signupSuccess,
         ));
       } on String catch (e) {
         emit(state.copyWith(
-          status: SigninStatus.submissionFailure,
+          status: SignupStatus.submissionFailure,
           message: e,
         ));
       } catch (_) {
-        emit(state.copyWith(status: SigninStatus.submissionFailure));
+        emit(state.copyWith(status: SignupStatus.submissionFailure));
       }
     }
   }

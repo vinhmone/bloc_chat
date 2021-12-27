@@ -46,6 +46,7 @@ class AuthenticationRepositoryImpl extends AuthenticationRepository {
     }
   }
 
+  // TODO change username
   @override
   Future<void> signup({required String email, required String password}) async {
     try {
