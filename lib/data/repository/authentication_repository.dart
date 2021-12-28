@@ -1,18 +1,24 @@
 import 'package:bloc_chat/data/model/user.dart';
 import 'package:bloc_chat/util/constants.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:sendbird_sdk/constant/enums.dart';
+import 'package:sendbird_sdk/sdk/sendbird_sdk_api.dart';
 
 abstract class AuthenticationRepository {
   Stream<People> get people;
 
   People get currentPeople;
 
-  Future<void> signup({required String email, required String password});
+  Future<void> signup({required String email, required String password, String? username});
 
-  Future<void> signin({required String email, required String password});
+  Future<void> signinToFirebase({required String email, required String password});
 
   Future<void> signout();
+
+  Future<void> signinToSendbird();
 }
+
+final sendbird = SendbirdSdk(appId: AppConstants.sendbirdAppID);
 
 class AuthenticationRepositoryImpl extends AuthenticationRepository {
   final FirebaseAuth _firebaseAuth;
@@ -26,7 +32,7 @@ class AuthenticationRepositoryImpl extends AuthenticationRepository {
       : People.empty;
 
   @override
-  Future<void> signin({required String email, required String password}) async {
+  Future<void> signinToFirebase({required String email, required String password}) async {
     try {
       await _firebaseAuth.signInWithEmailAndPassword(
           email: email, password: password);
@@ -34,6 +40,16 @@ class AuthenticationRepositoryImpl extends AuthenticationRepository {
       throw e.code;
     } catch (_) {
       throw AppConstants.unknownException;
+    }
+  }
+
+  @override
+  Future<void> signinToSendbird() async{
+    try {
+      sendbird.setLogLevel(LogLevel.error);
+      await sendbird.connect(_firebaseAuth.currentUser?.uid ?? '');
+    } catch (_) {
+      throw AppConstants.errorAuthSendbird;
     }
   }
 
@@ -46,12 +62,12 @@ class AuthenticationRepositoryImpl extends AuthenticationRepository {
     }
   }
 
-  // TODO change username
   @override
-  Future<void> signup({required String email, required String password}) async {
+  Future<void> signup({required String email, required String password, String? username}) async {
     try {
       await _firebaseAuth.createUserWithEmailAndPassword(
           email: email, password: password);
+      await _firebaseAuth.currentUser?.updateDisplayName(username);
     } on FirebaseAuthException catch (e) {
       throw e.code;
     } catch (_) {

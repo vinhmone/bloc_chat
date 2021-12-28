@@ -25,7 +25,7 @@ class _SigninFormState extends State<SigninForm> {
             ..showSnackBar(SnackBar(content: Text(state.message ?? ' ')));
         } else if (state.status == SigninStatus.submissionSuccess) {
           ScaffoldMessenger.of(context).hideCurrentMaterialBanner();
-          Navigator.push(context, HomePage.route());
+          Navigator.pushAndRemoveUntil(context, HomePage.route(), (Route<dynamic> route) => false);
         }
       },
       child: Container(

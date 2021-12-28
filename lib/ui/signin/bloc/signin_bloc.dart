@@ -71,7 +71,8 @@ class SigninBloc extends Bloc<SigninEvent, SigninState> {
           status: SigninStatus.submissionInProgress,
           message: SignInConstants.submissionInProgress));
       try {
-        await _repository.signin(email: state.email, password: state.password);
+        await _repository.signinToFirebase(
+            email: state.email, password: state.password);
         emit(state.copyWith(
           status: SigninStatus.submissionSuccess,
           message: '${AppConstants.signinSuccess} + ${state.email}',

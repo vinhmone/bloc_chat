@@ -1,4 +1,3 @@
-import 'package:bloc_chat/data/repository/authentication_repository.dart';
 import 'package:bloc_chat/ui/signin/signin.dart';
 import 'package:bloc_chat/ui/signin/view/signin_form.dart';
 import 'package:flutter/material.dart';

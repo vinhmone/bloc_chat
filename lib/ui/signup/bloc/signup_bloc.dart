@@ -4,6 +4,7 @@ import 'package:bloc_chat/util/constants.dart';
 import 'package:equatable/equatable.dart';
 
 part 'signup_event.dart';
+
 part 'signup_state.dart';
 
 class SignupBloc extends Bloc<SignupEvent, SignupState> {
@@ -85,7 +86,10 @@ class SignupBloc extends Bloc<SignupEvent, SignupState> {
           status: SignupStatus.submissionInProgress,
           message: SignupConstants.submissionInProgress));
       try {
-        await _repository.signup(email: state.email, password: state.password);
+        await _repository.signup(
+            email: state.email,
+            password: state.password,
+            username: state.username);
         emit(state.copyWith(
           status: SignupStatus.submissionSuccess,
           message: AppConstants.signupSuccess,

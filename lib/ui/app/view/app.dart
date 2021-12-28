@@ -25,10 +25,8 @@ class App extends StatelessWidget {
           home: BlocListener<AppBloc, AppState>(
             listener: (context, state) {
               if (state.status == AppStatus.authenticated) {
-                Navigator.push(
-                  context,
-                  HomePage.route(),
-                );
+                Navigator.pushAndRemoveUntil(
+                    context, HomePage.route(), (Route<dynamic> route) => false);
               } else {
                 Navigator.of(context).push(
                   SignInPage.route(),

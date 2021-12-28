@@ -1,4 +1,6 @@
 class AppConstants {
+  static const String sendbirdAppID = '7B3D3223-0109-4478-8461-62731F2D1AD2';
+
   static const String unknownException = 'An unknown exception occurred.';
   static const String signinSuccess = 'Welcome back ';
   static const String signupSuccess = 'Signup Successfully';
@@ -12,6 +14,12 @@ class AppConstants {
   static const String textSignup = "Signup";
   static const String textForgotPassword = 'Forgot?';
 
+  static const String errorAuthSendbird = "Can't connect to Sendbird...";
+  static const String errorGetChatList = "Can't load the chat list...";
+
+  static const String textMessage = "Message";
+  static const String textContact = "Contact";
+  static const String textSetting = "Setting";
 }
 
 class SignInConstants {
