@@ -4,7 +4,7 @@ import 'package:sendbird_sdk/core/channel/group/group_channel.dart';
 import 'package:sendbird_sdk/query/channel_list/group_channel_list_query.dart';
 
 abstract class ChatRepository {
-  Future<List<GroupChannel>> loadChatList({bool reload});
+  Future<List<GroupChannel>> loadChatList({bool reload = false});
 }
 
 class ChatRepositoryImpl extends ChatRepository {

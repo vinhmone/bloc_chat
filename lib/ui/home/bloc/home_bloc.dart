@@ -19,7 +19,9 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
   }
 
   Future _signinToSendbirdRequested(
-      SigninToSendbirdRequested event, Emitter<HomeState> emit) async {
+    SigninToSendbirdRequested event,
+    Emitter<HomeState> emit,
+  ) async {
     emit(
       state.copyWith(
         status: HomeStatus.connectInProgress,

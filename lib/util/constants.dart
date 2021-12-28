@@ -20,6 +20,7 @@ class AppConstants {
   static const String textMessage = "Message";
   static const String textContact = "Contact";
   static const String textSetting = "Setting";
+  static const String textAllChat = 'All Chat';
 }
 
 class SignInConstants {

@@ -10,11 +10,9 @@ class HomePage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: BlocProvider<HomeBloc>(
-        create: (_) => HomeBloc(repository: context.read()),
-        child: HomeScreen(),
-      ),
+    return BlocProvider<HomeBloc>(
+      create: (_) => HomeBloc(repository: context.read()),
+      child: HomeScreen(),
     );
   }
 }

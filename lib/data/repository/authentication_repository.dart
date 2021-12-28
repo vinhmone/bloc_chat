@@ -47,7 +47,9 @@ class AuthenticationRepositoryImpl extends AuthenticationRepository {
   Future<void> signinToSendbird() async{
     try {
       sendbird.setLogLevel(LogLevel.error);
-      await sendbird.connect(_firebaseAuth.currentUser?.uid ?? '');
+      //TODO change to firebase uid
+      // await sendbird.connect(_firebaseAuth.currentUser?.uid ?? '');
+      await sendbird.connect('vinh');
     } catch (_) {
       throw AppConstants.errorAuthSendbird;
     }

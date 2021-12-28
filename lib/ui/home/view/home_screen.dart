@@ -1,4 +1,6 @@
 import 'package:bloc_chat/data/repository/chat_repository.dart';
+import 'package:bloc_chat/ui/chat_list/chat_list.dart';
+import 'package:bloc_chat/ui/contact/view/contact_page.dart';
 import 'package:bloc_chat/ui/home/bloc/home_bloc.dart';
 import 'package:bloc_chat/util/constants.dart';
 import 'package:flutter/material.dart';
@@ -32,14 +34,6 @@ class _HomeScreenState extends State<HomeScreen> {
         }
       },
       child: Scaffold(
-        appBar: AppBar(
-          centerTitle: true,
-          title: const Text('BLoC Chat'),
-          titleTextStyle: const TextStyle(
-            color: Colors.black,
-            fontWeight: FontWeight.bold,
-          ),
-        ),
         body: RepositoryProvider(
           create: (_) => widget._repository,
           child: bodyWidgets[_currentIndex],
@@ -58,31 +52,27 @@ class _HomeScreenState extends State<HomeScreen> {
       ),
     );
   }
+
+  static List<Widget> bodyWidgets = [
+    const ChatListPage(),
+    const ContactPage(),
+    Container(
+      color: Colors.green,
+    ),
+  ];
+
+  static List<BottomNavigationBarItem> bottomBarItems = [
+    const BottomNavigationBarItem(
+      label: AppConstants.textMessage,
+      icon: Icon(Icons.message),
+    ),
+    const BottomNavigationBarItem(
+      label: AppConstants.textContact,
+      icon: Icon(Icons.people),
+    ),
+    const BottomNavigationBarItem(
+      label: AppConstants.textSetting,
+      icon: Icon(Icons.settings),
+    )
+  ];
 }
-
-List<Widget> bodyWidgets = [
-  Container(
-    color: Colors.black,
-  ),
-  Container(
-    color: Colors.red,
-  ),
-  Container(
-    color: Colors.green,
-  ),
-];
-
-List<BottomNavigationBarItem> bottomBarItems = [
-  const BottomNavigationBarItem(
-    label: AppConstants.textMessage,
-    icon: Icon(Icons.message),
-  ),
-  const BottomNavigationBarItem(
-    label: AppConstants.textContact,
-    icon: Icon(Icons.people),
-  ),
-  const BottomNavigationBarItem(
-    label: AppConstants.textSetting,
-    icon: Icon(Icons.settings),
-  )
-];
