@@ -5,6 +5,7 @@ enum ChatListStatus {
   chatListReloading,
   chatListLoaded,
   chatListLoadFailed,
+  onMessageReceived,
   //TODO delete chat
 }
 

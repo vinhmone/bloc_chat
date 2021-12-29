@@ -15,6 +15,9 @@ class HomeScreen extends StatefulWidget {
   _HomeScreenState createState() => _HomeScreenState();
 }
 
+const chatListPage = ChatListPage();
+const contactPage = ContactPage();
+
 class _HomeScreenState extends State<HomeScreen> {
   int _currentIndex = 0;
 
@@ -54,8 +57,8 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   static List<Widget> bodyWidgets = [
-    const ChatListPage(),
-    const ContactPage(),
+    chatListPage,
+    contactPage,
     Container(
       color: Colors.green,
     ),

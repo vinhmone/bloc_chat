@@ -10,7 +10,7 @@ abstract class ChatListEvent extends Equatable {
 class LoadChatListRequested extends ChatListEvent {
   final bool reload;
 
-  const LoadChatListRequested({required this.reload});
+   const LoadChatListRequested({required this.reload});
 
   @override
   List<Object?> get props => [reload];
@@ -20,6 +20,13 @@ class ChatListChanged extends ChatListEvent {}
 
 class ReadReceiptUpdated extends ChatListEvent {}
 
-class MessageReceived extends ChatListEvent {}
+class MessageReceived extends ChatListEvent {
+  final List<GroupChannel> groups;
+
+  const MessageReceived({required this.groups});
+
+  @override
+  List<Object> get props => groups;
+}
 
 class UserLeaved extends ChatListEvent {}

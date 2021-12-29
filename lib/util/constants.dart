@@ -1,5 +1,7 @@
 class AppConstants {
   static const String sendbirdAppID = '7B3D3223-0109-4478-8461-62731F2D1AD2';
+  static const String sendbirdApiToken =
+      'e7d3659fe2eb0c5bad9468a66eb77b30e6408223';
 
   static const String unknownException = 'An unknown exception occurred.';
   static const String signinSuccess = 'Welcome back ';
@@ -21,6 +23,7 @@ class AppConstants {
   static const String textContact = "Contact";
   static const String textSetting = "Setting";
   static const String textAllChat = 'All Chat';
+  static const String textReceivedNewMessage = 'You have new messages!';
 }
 
 class SignInConstants {
@@ -37,4 +40,13 @@ class SignupConstants {
   static const String usernameIsEmpty = 'Username cannot be empty';
 
   static const String submissionInProgress = 'Creating your account...';
+}
+
+class SendbirdConstants {
+  static const String textIdentifierChatList = 'chat-list-bloc';
+}
+
+class ChatConstants {
+  static const String textNewFileMessage = 'file message';
+  static const String textDefaultGroupChatName = 'Group chat';
 }

@@ -3,6 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:bloc_chat/ui/chat_list/chat_list.dart';
 
+import 'chat_list_item.dart';
+
 class ChatListScreen extends StatefulWidget {
   const ChatListScreen({Key? key}) : super(key: key);
 
@@ -13,23 +15,32 @@ class ChatListScreen extends StatefulWidget {
 class _ChatListScreenState extends State<ChatListScreen> {
   @override
   Widget build(BuildContext context) {
+    _reloadListView(true);
     return Scaffold(
       appBar: AppBar(
         title: const Text(AppConstants.textAllChat),
       ),
       body: BlocBuilder<ChatListBloc, ChatListState>(
-        buildWhen: (_, current) =>
-            current.status == ChatListStatus.chatListLoaded,
+        buildWhen: (_, current) {
+          return current.status == ChatListStatus.chatListLoaded ||
+              current.status == ChatListStatus.onMessageReceived;
+        },
         builder: (context, state) {
           return RefreshIndicator(
-            onRefresh: () async {
-              context
-                  .read<ChatListBloc>()
-                  .add(const LoadChatListRequested(reload: true));
-            },
+            onRefresh: () => _reloadListView(true),
             child: ListView.separated(
               itemBuilder: (context, index) {
-                return Text(state.groups[index].lastMessage?.message ?? '4235435');
+                return (index == state.groups.length &&
+                        BlocProvider.of<ChatListBloc>(context).hasNext)
+                    ? const SizedBox(
+                        height: 20,
+                        width: 20,
+                        child: CircularProgressIndicator(),
+                      )
+                    : InkWell(
+                        onTap: () {},
+                        child: ChatListItem(channel: state.groups[index]),
+                      );
               },
               separatorBuilder: (context, index) {
                 return const SizedBox(height: 4);
@@ -40,5 +51,9 @@ class _ChatListScreenState extends State<ChatListScreen> {
         },
       ),
     );
+  }
+
+  Future _reloadListView(bool reload) async {
+    context.read<ChatListBloc>().add(LoadChatListRequested(reload: reload));
   }
 }

@@ -9,30 +9,44 @@ abstract class AuthenticationRepository {
 
   People get currentPeople;
 
-  Future<void> signup({required String email, required String password, String? username});
+  Future<void> signup(
+      {required String email, required String password, String? username});
 
-  Future<void> signinToFirebase({required String email, required String password});
+  Future<void> signinToFirebase(
+      {required String email, required String password});
 
   Future<void> signout();
 
   Future<void> signinToSendbird();
 }
 
-final sendbird = SendbirdSdk(appId: AppConstants.sendbirdAppID);
+late final SendbirdSdk sendbird;
 
 class AuthenticationRepositoryImpl extends AuthenticationRepository {
   final FirebaseAuth _firebaseAuth;
 
   AuthenticationRepositoryImpl({FirebaseAuth? firebaseAuth})
-      : _firebaseAuth = firebaseAuth ?? FirebaseAuth.instance;
+      : _firebaseAuth = firebaseAuth ?? FirebaseAuth.instance {
+    initSendbird();
+  }
 
   @override
   People get currentPeople => (_firebaseAuth.currentUser != null)
       ? People.fromUser(_firebaseAuth.currentUser!)
       : People.empty;
 
+  void initSendbird() {
+    try {
+      sendbird = SendbirdSdk(
+        appId: AppConstants.sendbirdAppID,
+        apiToken: AppConstants.sendbirdApiToken,
+      );
+    } catch (e) {}
+  }
+
   @override
-  Future<void> signinToFirebase({required String email, required String password}) async {
+  Future<void> signinToFirebase(
+      {required String email, required String password}) async {
     try {
       await _firebaseAuth.signInWithEmailAndPassword(
           email: email, password: password);
@@ -44,7 +58,7 @@ class AuthenticationRepositoryImpl extends AuthenticationRepository {
   }
 
   @override
-  Future<void> signinToSendbird() async{
+  Future<void> signinToSendbird() async {
     try {
       sendbird.setLogLevel(LogLevel.error);
       //TODO change to firebase uid
@@ -65,7 +79,10 @@ class AuthenticationRepositoryImpl extends AuthenticationRepository {
   }
 
   @override
-  Future<void> signup({required String email, required String password, String? username}) async {
+  Future<void> signup(
+      {required String email,
+      required String password,
+      String? username}) async {
     try {
       await _firebaseAuth.createUserWithEmailAndPassword(
           email: email, password: password);

@@ -22,18 +22,19 @@ class App extends StatelessWidget {
           authenticationRepository: _authenticationRepository,
         ),
         child: MaterialApp(
-          home: BlocListener<AppBloc, AppState>(
-            listener: (context, state) {
+          home: BlocBuilder<AppBloc, AppState>(
+            builder: (context, state) {
               if (state.status == AppStatus.authenticated) {
-                Navigator.pushAndRemoveUntil(
-                    context, HomePage.route(), (Route<dynamic> route) => false);
+                // Navigator.pushAndRemoveUntil(
+                //     context, HomePage.route(), (Route<dynamic> route) => false);
+                return const HomePage();
               } else {
-                Navigator.of(context).push(
-                  SignInPage.route(),
-                );
+                // Navigator.of(context).push(
+                //   SignInPage.route(),
+                // );
+                return const SignInPage();
               }
             },
-            child: const SignInPage(),
           ),
         ),
       ),
