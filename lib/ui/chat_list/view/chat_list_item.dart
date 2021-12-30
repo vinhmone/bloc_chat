@@ -32,20 +32,23 @@ class ChatListItem extends StatelessWidget {
   }
 
   Widget _buildChatImageCover() {
-    return Padding(
-      padding: const EdgeInsets.all(8.0),
-      child: AspectRatio(
-        aspectRatio: 1 / 1,
-        child: FittedBox(
-          fit: BoxFit.contain,
-          child: (channel.coverUrl != null)
-              ? CircleAvatar(
-                  backgroundImage: NetworkImage(channel.coverUrl!),
-                )
-              : const CircleAvatar(
-                  backgroundImage:
-                      AssetImage('assets/images/group_cover_holder.png'),
-                ),
+    return Hero(
+      tag: channel.key,
+      child: Padding(
+        padding: const EdgeInsets.all(8.0),
+        child: AspectRatio(
+          aspectRatio: 1 / 1,
+          child: FittedBox(
+            fit: BoxFit.contain,
+            child: (channel.coverUrl != null)
+                ? CircleAvatar(
+                    backgroundImage: NetworkImage(channel.coverUrl!),
+                  )
+                : const CircleAvatar(
+                    backgroundImage:
+                        AssetImage('assets/images/group_cover_holder.png'),
+                  ),
+          ),
         ),
       ),
     );

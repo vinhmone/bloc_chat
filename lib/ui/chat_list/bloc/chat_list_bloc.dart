@@ -77,7 +77,7 @@ class ChatListBloc extends Bloc<ChatListEvent, ChatListState>
     if (index != -1) {
       newGroups.removeAt(index);
     }
-    channel.dirty = true;
+    // channel.dirty = true;
     newGroups.insert(0, channel);
     add(MessageReceived(groups: newGroups));
   }

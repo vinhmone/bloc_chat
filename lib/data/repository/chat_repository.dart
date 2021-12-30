@@ -1,9 +1,9 @@
-import 'dart:io';
-
 import 'package:bloc_chat/util/constants.dart';
 import 'package:sendbird_sdk/constant/enums.dart';
 import 'package:sendbird_sdk/core/channel/base/base_channel.dart';
 import 'package:sendbird_sdk/core/channel/group/group_channel.dart';
+import 'package:sendbird_sdk/core/message/base_message.dart';
+import 'package:sendbird_sdk/params/message_list_params.dart';
 import 'package:sendbird_sdk/query/channel_list/group_channel_list_query.dart';
 
 abstract class ChatRepository {
@@ -11,11 +11,9 @@ abstract class ChatRepository {
 
   bool get hasNext;
 
-  Future sendTextMessage(BaseChannel channel, String message);
+  Future<List<BaseMessage>?> loadAllMessage(GroupChannel group);
 
-  Future sendFileMessage(BaseChannel channel, File file);
-
-  Future deleteMessage(BaseChannel channel, int messageId);
+  Future markChannelAsRead(BaseChannel channel);
 }
 
 class ChatRepositoryImpl extends ChatRepository {
@@ -50,15 +48,21 @@ class ChatRepositoryImpl extends ChatRepository {
   }
 
   @override
-  Future deleteMessage(BaseChannel channel, int messageId) async {
+  Future<List<BaseMessage>?> loadAllMessage(GroupChannel group) async {
+    final params = MessageListParams()
+      ..isInclusive = false
+      ..includeThreadInfo = true
+      ..reverse = true
+      ..previousResultSize = 30;
+
+    return await group.getMessagesByTimestamp(
+      DateTime.now().millisecondsSinceEpoch,
+      params,
+    );
   }
 
   @override
-  Future sendFileMessage(BaseChannel channel, File file) async {}
-
-  @override
-  Future sendTextMessage(BaseChannel channel, String message) async {
-    if (message.isEmpty) return;
-
+  Future markChannelAsRead(BaseChannel channel) async {
+    if (channel is GroupChannel) channel.markAsRead();
   }
 }
