@@ -44,8 +44,8 @@ class SignupConstants {
 
 class SendbirdConstants {
   static const String textIdentifierChatList = 'chat-list-bloc';
-
   static const String textIdentifierChatDetail = 'chat-detail-bloc';
+  static const String textDefaultUsername = 'someone';
 }
 
 class ChatConstants {

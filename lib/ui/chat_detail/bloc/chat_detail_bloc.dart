@@ -5,13 +5,9 @@ import 'package:bloc_chat/data/repository/authentication_repository.dart';
 import 'package:bloc_chat/data/repository/chat_repository.dart';
 import 'package:bloc_chat/util/constants.dart';
 import 'package:equatable/equatable.dart';
-import 'package:sendbird_sdk/core/channel/base/base_channel.dart';
-import 'package:sendbird_sdk/core/channel/group/group_channel.dart';
-import 'package:sendbird_sdk/core/message/base_message.dart';
-import 'package:sendbird_sdk/handlers/channel_event_handler.dart';
+import 'package:sendbird_sdk/sendbird_sdk.dart';
 
 part 'chat_detail_event.dart';
-
 part 'chat_detail_state.dart';
 
 class ChatDetailBloc extends Bloc<ChatDetailEvent, ChatDetailState>
@@ -37,6 +33,7 @@ class ChatDetailBloc extends Bloc<ChatDetailEvent, ChatDetailState>
     LoadAllMessageRequested event,
     Emitter<ChatDetailState> emit,
   ) async {
+    await _repository.markChannelAsRead(group);
     final result = await _repository.loadAllMessage(group);
     if (result != null) {
       emit(state.copyWith(
@@ -73,6 +70,14 @@ class ChatDetailBloc extends Bloc<ChatDetailEvent, ChatDetailState>
         channel: channel,
         message: message,
       ));
+
+  @override
+  void onUserLeaved(GroupChannel channel, User user) {}
+
+  @override
+  void onReadReceiptUpdated(GroupChannel channel) {
+    super.onReadReceiptUpdated(channel);
+  }
 
   @override
   Future<void> close() async {

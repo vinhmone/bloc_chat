@@ -28,6 +28,7 @@ class ChatListBloc extends Bloc<ChatListEvent, ChatListState>
     );
     on<LoadChatListRequested>(_loadChatList);
     on<MessageReceived>(_onMessageReceived);
+    on<ChatListChanged>(_onChannelChanged);
   }
 
   bool get hasNext => _repository.hasNext;
@@ -60,11 +61,32 @@ class ChatListBloc extends Bloc<ChatListEvent, ChatListState>
   }
 
   @override
-  void onChannelChanged(BaseChannel channel) {}
+  void onChannelChanged(BaseChannel channel) {
+    if (channel is! GroupChannel) return;
+    add(ChatListChanged(channel: channel));
+  }
 
-  @override
-  void onReadReceiptUpdated(GroupChannel channel) {
-    super.onReadReceiptUpdated(channel);
+  void _onChannelChanged(ChatListChanged event, Emitter<ChatListState> emit) {
+    emit(
+      state.copyWith(
+        status: ChatListStatus.chatListReloading,
+      ),
+    );
+    final index = state.groups.indexWhere(
+        (element) => element.channelUrl == event.channel.channelUrl);
+    if (index == -1) {
+      state.groups.insert(0, (event.channel as GroupChannel));
+    } else {
+      state.groups
+        ..removeAt(index)
+        ..insert(index, (event.channel as GroupChannel));
+    }
+
+    emit(
+      state.copyWith(
+        status: ChatListStatus.chatListLoaded,
+      ),
+    );
   }
 
   @override
@@ -81,9 +103,6 @@ class ChatListBloc extends Bloc<ChatListEvent, ChatListState>
     newGroups.insert(0, channel);
     add(MessageReceived(groups: newGroups));
   }
-
-  @override
-  void onUserLeaved(GroupChannel channel, sendbird_user.User user) {}
 
   void _onMessageReceived(MessageReceived event, Emitter<ChatListState> emit) {
     emit(state.copyWith(

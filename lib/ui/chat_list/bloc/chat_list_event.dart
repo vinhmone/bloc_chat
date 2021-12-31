@@ -16,7 +16,13 @@ class LoadChatListRequested extends ChatListEvent {
   List<Object?> get props => [reload];
 }
 
-class ChatListChanged extends ChatListEvent {}
+class ChatListChanged extends ChatListEvent {
+  final BaseChannel channel;
+
+  const ChatListChanged({required this.channel});
+  @override
+  List<Object?> get props => [channel];
+}
 
 class ReadReceiptUpdated extends ChatListEvent {}
 

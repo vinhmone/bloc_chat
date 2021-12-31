@@ -1,6 +1,5 @@
 import 'package:bloc_chat/util/constants.dart';
 import 'package:bloc_chat/util/extensions.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:sendbird_sdk/core/channel/group/group_channel.dart';
 import 'package:sendbird_sdk/core/message/file_message.dart';
