@@ -29,6 +29,7 @@ class ChatListBloc extends Bloc<ChatListEvent, ChatListState>
     on<LoadChatListRequested>(_loadChatList);
     on<MessageReceived>(_onMessageReceived);
     on<ChatListChanged>(_onChannelChanged);
+    add(const LoadChatListRequested(reload: true));
   }
 
   bool get hasNext => _repository.hasNext;

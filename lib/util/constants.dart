@@ -51,4 +51,5 @@ class SendbirdConstants {
 class ChatConstants {
   static const String textNewFileMessage = 'file message';
   static const String textDefaultGroupChatName = 'Group chat';
+  static const String textSendAMessage = 'Text a message';
 }

@@ -18,9 +18,7 @@ class _ChatListScreenState extends State<ChatListScreen> {
   Widget build(BuildContext context) {
     _reloadListView(true);
     return Scaffold(
-      appBar: AppBar(
-        title: const Text(AppConstants.textAllChat),
-      ),
+      appBar: AppBar(title: const Text(AppConstants.textAllChat)),
       body: BlocBuilder<ChatListBloc, ChatListState>(
         buildWhen: (_, current) {
           return current.status == ChatListStatus.chatListLoaded ||
@@ -42,8 +40,7 @@ class _ChatListScreenState extends State<ChatListScreen> {
                         onTap: () {
                           Navigator.push(
                             context,
-                            ChatDetailPage.route(
-                                channel: state.groups[index]),
+                            ChatDetailPage.route(channel: state.groups[index]),
                           );
                         },
                         child: ChatListItem(channel: state.groups[index]),

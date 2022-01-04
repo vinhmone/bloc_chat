@@ -9,9 +9,17 @@ abstract class ChatDetailEvent extends Equatable {
 
 class LoadAllMessageRequested extends ChatDetailEvent {}
 
-class SendTextMessageRequested extends ChatDetailEvent {}
+class SendTextMessageRequested extends ChatDetailEvent {
+  final UserMessage message;
 
-class SendFileMessageRequested extends ChatDetailEvent {}
+  const SendTextMessageRequested({required this.message});
+}
+
+class SendFileMessageRequested extends ChatDetailEvent {
+  final FileMessage message;
+
+  const SendFileMessageRequested({required this.message});
+}
 
 class DeleteMessageRequested extends ChatDetailEvent {}
 

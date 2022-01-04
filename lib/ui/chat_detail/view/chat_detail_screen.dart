@@ -1,11 +1,9 @@
 import 'package:bloc_chat/ui/chat_detail/bloc/chat_detail_bloc.dart';
+import 'package:bloc_chat/util/utils.dart';
 import 'package:bloc_chat/ui/chat_detail/view/message_input.dart';
-import 'package:bloc_chat/ui/chat_list/bloc/chat_list_bloc.dart';
 import 'package:bloc_chat/util/constants.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:sendbird_sdk/core/channel/group/group_channel.dart';
-import 'package:sendbird_sdk/core/message/base_message.dart';
 
 import 'message_item.dart';
 
@@ -28,12 +26,10 @@ class _ChatDetailScreenState extends State<ChatDetailScreen> {
               BackButton(
                 color: Theme.of(context).primaryColor,
               ),
-              const SizedBox(
-                width: 2,
-              ),
+              const SizedBox(width: 2),
               _buildChatImageCover(),
               _buildAppBarChatName(),
-              _buildAppBarTailIcon()
+              _buildAppBarTailIcon(),
             ],
           ),
         ),
@@ -42,17 +38,27 @@ class _ChatDetailScreenState extends State<ChatDetailScreen> {
         child: Column(
           children: [
             _buildChatMessages(),
-            MessageInput(
-              onPressPlus: () {},
-              onPressSend: (text) {},
-              onEditing: (text) {},
-              onChanged: (text) {},
-              placeHolder: 'Vinh',
-              isEditing: false,
-            ),
+            _buildMessageInput(),
           ],
         ),
       ),
+    );
+  }
+
+  Widget _buildMessageInput() {
+    return MessageInput(
+      onPressPlus: () async {
+        final file = await getFile(context);
+        print(file?.path);
+        if (file != null) {
+          BlocProvider.of<ChatDetailBloc>(context).sendFileMessage(file);
+        }
+      },
+      onPressSend: (text) {
+        BlocProvider.of<ChatDetailBloc>(context).sendTextMessage(text);
+      },
+      onChanged: (text) {},
+      placeHolder: 'Vinh',
     );
   }
 
@@ -62,6 +68,7 @@ class _ChatDetailScreenState extends State<ChatDetailScreen> {
         color: Colors.white,
         child: BlocBuilder<ChatDetailBloc, ChatDetailState>(
           buildWhen: (_, current) {
+            print('asdf');
             return current.status == ChatDetailStatus.chatLoadSuccess ||
                 current.status == ChatDetailStatus.newMessageReceived;
           },

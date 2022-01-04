@@ -38,7 +38,7 @@ class MessageItem extends StatelessWidget {
                 ? _buildRightWidget(context)
                 : _buildLeftWidget(context),
             SizedBox(
-              height: (next != null) ? 4 : 80,
+              height: (next != null) ? 4 : 20,
             ),
           ],
         ),
@@ -162,16 +162,17 @@ class MessageItem extends StatelessWidget {
       child: AspectRatio(
         aspectRatio: 1 / 1,
         child: FittedBox(
-            fit: BoxFit.contain,
-            child: avatarUrl.isEmpty
-                ? const CircleAvatar(
-                    child: Icon(Icons.person),
-                  )
-                : CircleAvatar(
-                    backgroundImage: NetworkImage(
-                      current.sender!.profileUrl!,
-                    ),
-                  )),
+          fit: BoxFit.contain,
+          child: avatarUrl.isEmpty
+              ? const CircleAvatar(
+                  child: Icon(Icons.person),
+                )
+              : CircleAvatar(
+                  backgroundImage: NetworkImage(
+                    current.sender!.profileUrl!,
+                  ),
+                ),
+        ),
       ),
     );
   }

@@ -11,6 +11,9 @@ extension DateUtil on int {
 
   String toReadableDateWeekTime() {
     final date = DateTime.fromMillisecondsSinceEpoch(this);
+    final now = DateTime.now();
+    if (date.isSameDate(now)) return 'Today';
+    if (date.isYesterday(now)) return 'Yesterday';
     return DateFormat('E, MMM d').format(date);
   }
 }
@@ -22,6 +25,8 @@ extension BaseMessageX on BaseMessage {
 extension DateTimeX on DateTime {
   bool isSameDate(DateTime a) =>
       (a.year == year) && (a.month == month) && (a.day == day);
+
+  bool isYesterday(DateTime a) => difference(a).inDays == -1;
 
   bool isSendAtSameMinute(DateTime a) =>
       (a.year == year) &&

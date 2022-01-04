@@ -1,19 +1,16 @@
+import 'package:bloc_chat/ui/contact/bloc/contact_bloc.dart';
+import 'package:bloc_chat/ui/contact/view/contact_screen.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
-class ContactPage extends StatefulWidget {
+class ContactPage extends StatelessWidget {
   const ContactPage({Key? key}) : super(key: key);
 
   @override
-  _ContactPageState createState() => _ContactPageState();
-}
-
-class _ContactPageState extends State<ContactPage> {
-  @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text('645645654'),
-      ),
+    return BlocProvider<ContactBloc>(
+      create: (_) => ContactBloc(repository: context.read()),
+      child: const ContactScreen(),
     );
   }
 }
