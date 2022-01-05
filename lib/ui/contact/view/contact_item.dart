@@ -3,16 +3,19 @@ import 'package:sendbird_sdk/sendbird_sdk.dart';
 
 class ContactItem extends StatefulWidget {
   final User user;
+  bool isSelected;
 
-  const ContactItem({Key? key, required this.user}) : super(key: key);
+  ContactItem({
+    Key? key,
+    required this.user,
+    this.isSelected = false,
+  }) : super(key: key);
 
   @override
   _ContactItemState createState() => _ContactItemState();
 }
 
 class _ContactItemState extends State<ContactItem> {
-  bool isSelected = false;
-
   @override
   Widget build(BuildContext context) {
     final avatarUrl = widget.user.profileUrl ?? '';
@@ -22,36 +25,39 @@ class _ContactItemState extends State<ContactItem> {
       title: Text(name),
       leading: _buildAvatarWidget(avatarUrl),
       trailing: Checkbox(
-        value: isSelected,
+        value: widget.isSelected,
         onChanged: (bool? value) {
           setState(() {
-            isSelected = value ?? false;
+            widget.isSelected = value ?? false;
           });
         },
       ),
     );
   }
 
-  Padding _buildAvatarWidget(String avatarUrl) {
+  Widget _buildAvatarWidget(String avatarUrl) {
     return Padding(
       padding: const EdgeInsets.all(8.0),
       child: AspectRatio(
         aspectRatio: 1 / 1,
-        child: SizedBox(
-          height: 22,
-          child: AspectRatio(
-            aspectRatio: 1 / 1,
-            child: FittedBox(
-              fit: BoxFit.contain,
-              child: avatarUrl.isEmpty
-                  ? const CircleAvatar(
-                      child: Icon(Icons.person),
-                    )
-                  : CircleAvatar(
-                      backgroundImage: NetworkImage(
-                        avatarUrl,
+        child: Hero(
+          tag: widget.user.userId,
+          child: SizedBox(
+            height: 22,
+            child: AspectRatio(
+              aspectRatio: 1 / 1,
+              child: FittedBox(
+                fit: BoxFit.contain,
+                child: avatarUrl.isEmpty
+                    ? const CircleAvatar(
+                        child: Icon(Icons.person),
+                      )
+                    : CircleAvatar(
+                        backgroundImage: NetworkImage(
+                          avatarUrl,
+                        ),
                       ),
-                    ),
+              ),
             ),
           ),
         ),

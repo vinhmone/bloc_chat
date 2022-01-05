@@ -1,4 +1,5 @@
 import 'package:bloc_chat/ui/chat_detail/bloc/chat_detail_bloc.dart';
+import 'package:bloc_chat/ui/chat_detail/view/channel_detail_screen.dart';
 import 'package:bloc_chat/util/utils.dart';
 import 'package:bloc_chat/ui/chat_detail/view/message_input.dart';
 import 'package:bloc_chat/util/constants.dart';
@@ -18,22 +19,7 @@ class _ChatDetailScreenState extends State<ChatDetailScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        elevation: 1,
-        flexibleSpace: SafeArea(
-          child: Row(
-            children: [
-              BackButton(
-                color: Theme.of(context).primaryColor,
-              ),
-              const SizedBox(width: 2),
-              _buildChatImageCover(),
-              _buildAppBarChatName(),
-              _buildAppBarTailIcon(),
-            ],
-          ),
-        ),
-      ),
+      appBar: _buildAppBar(),
       body: SafeArea(
         child: Column(
           children: [
@@ -45,11 +31,29 @@ class _ChatDetailScreenState extends State<ChatDetailScreen> {
     );
   }
 
+  AppBar _buildAppBar() {
+    return AppBar(
+      elevation: 1,
+      flexibleSpace: SafeArea(
+        child: Row(
+          children: [
+            BackButton(
+              color: Theme.of(context).primaryColor,
+            ),
+            const SizedBox(width: 2),
+            _buildChatImageCover(),
+            _buildAppBarChatName(),
+            _buildAppBarTailIcon(),
+          ],
+        ),
+      ),
+    );
+  }
+
   Widget _buildMessageInput() {
     return MessageInput(
       onPressPlus: () async {
         final file = await getFile(context);
-        print(file?.path);
         if (file != null) {
           BlocProvider.of<ChatDetailBloc>(context).sendFileMessage(file);
         }
@@ -68,7 +72,6 @@ class _ChatDetailScreenState extends State<ChatDetailScreen> {
         color: Colors.white,
         child: BlocBuilder<ChatDetailBloc, ChatDetailState>(
           buildWhen: (_, current) {
-            print('asdf');
             return current.status == ChatDetailStatus.chatLoadSuccess ||
                 current.status == ChatDetailStatus.newMessageReceived;
           },
@@ -105,7 +108,12 @@ class _ChatDetailScreenState extends State<ChatDetailScreen> {
       child: FittedBox(
         fit: BoxFit.cover,
         child: MaterialButton(
-          onPressed: () {},
+          onPressed: () {
+            Navigator.push(
+              context,
+              ChannelDetailScreen.route(context),
+            );
+          },
           shape: const CircleBorder(),
           child: const Icon(
             Icons.info_outline,

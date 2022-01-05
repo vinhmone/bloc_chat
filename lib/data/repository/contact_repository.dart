@@ -5,11 +5,12 @@ import 'package:sendbird_sdk/sendbird_sdk.dart';
 abstract class ContactRepository {
   Future<List<User>> loadAllUser();
 
-  Future<BaseChannel> createChannel(List<User> users);
+  Future<GroupChannel> createChannel({required List<User> users, String? name});
+
+  Future<GroupChannel> createPrivateChannel({required List<User> users});
 }
 
 class ContactRepositoryImpl extends ContactRepository {
-
   @override
   Future<List<User>> loadAllUser() async {
     final query = ApplicationUserListQuery();
@@ -26,12 +27,32 @@ class ContactRepositoryImpl extends ContactRepository {
   }
 
   @override
-  Future<BaseChannel> createChannel(List<User> users) async {
+  Future<GroupChannel> createChannel(
+      {required List<User> users, String? name}) async {
     try {
       final userIds = users.map((u) => u.userId).toList();
       final params = GroupChannelParams();
       params.userIds = userIds;
-      return await GroupChannel.createChannel(params);
+      if (name != null && name.isNotEmpty) {
+        params.name = name;
+      }
+      final newChannel = await GroupChannel.createChannel(params);
+      return newChannel;
+    } catch (_) {
+      throw Exception(AppConstants.unknownException);
+    }
+  }
+
+  @override
+  Future<GroupChannel> createPrivateChannel({required List<User> users}) async {
+    try {
+      final userIds = users.map((u) => u.userId).toList();
+      final params = GroupChannelParams();
+      params
+        ..userIds = userIds
+        ..isDistinct = true;
+      final newChannel = await GroupChannel.createChannel(params);
+      return newChannel;
     } catch (_) {
       throw Exception(AppConstants.unknownException);
     }

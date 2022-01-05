@@ -46,7 +46,10 @@ class ContactBloc extends Bloc<ContactEvent, ContactState> {
       status: ContactStatus.createNewChatInProgress,
     ));
     try {
-      final channel = await _repository.createChannel(event.users);
+      final channel = await _repository.createChannel(
+        users: event.users,
+        name: event.name,
+      );
       emit(state.copyWith(
         channel: channel,
         status: ContactStatus.createNewChatSuccess,

@@ -16,7 +16,9 @@ class ChatDetailPage extends StatelessWidget {
         super(key: key);
 
   static Route route({required GroupChannel channel}) => MaterialPageRoute(
-        builder: (_) => ChatDetailPage(channel: channel),
+        builder: (_) => ChatDetailPage(
+          channel: channel,
+        ),
       );
 
   @override

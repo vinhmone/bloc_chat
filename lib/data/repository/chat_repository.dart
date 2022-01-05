@@ -93,9 +93,7 @@ class ChatRepositoryImpl extends ChatRepository {
     return channel.sendUserMessageWithText(
       text,
       onCompleted: (msg, error) {
-        print('repository');
         if (error != null) {
-          print('error');
           failure;
         } else {
           success.call();
@@ -112,7 +110,6 @@ class ChatRepositoryImpl extends ChatRepository {
   ) async {
     final params = FileMessageParams.withFile(file);
     return channel.sendFileMessage(params, onCompleted: (msg, error) {
-      print('sendFileMessage');
       success.call();
     });
   }

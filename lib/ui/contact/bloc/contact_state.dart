@@ -12,7 +12,7 @@ enum ContactStatus {
 
 class ContactState extends Equatable {
   final List<User> users;
-  final BaseChannel? channel;
+  final GroupChannel? channel;
   final ContactStatus status;
   final String? message;
 
@@ -25,7 +25,7 @@ class ContactState extends Equatable {
 
   ContactState copyWith({
     List<User>? users,
-    BaseChannel? channel,
+    GroupChannel? channel,
     ContactStatus? status,
     String? message,
   }) {
