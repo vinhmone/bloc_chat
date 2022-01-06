@@ -1,3 +1,4 @@
+import 'dart:developer';
 import 'dart:io';
 
 import 'package:bloc_chat/util/constants.dart';
@@ -7,7 +8,9 @@ import 'package:sendbird_sdk/core/channel/group/group_channel.dart';
 import 'package:sendbird_sdk/core/message/base_message.dart';
 import 'package:sendbird_sdk/core/message/file_message.dart';
 import 'package:sendbird_sdk/core/message/user_message.dart';
+import 'package:sendbird_sdk/core/models/file_info.dart';
 import 'package:sendbird_sdk/params/file_message_params.dart';
+import 'package:sendbird_sdk/params/group_channel_params.dart';
 import 'package:sendbird_sdk/params/message_list_params.dart';
 import 'package:sendbird_sdk/query/channel_list/group_channel_list_query.dart';
 
@@ -30,8 +33,16 @@ abstract class ChatRepository {
   Future<FileMessage> sendFileMessage(
     BaseChannel channel,
     File file,
-    Function() success,
+    Function(BaseMessage message) success,
   );
+
+  Future updateGroupChat({
+    required BaseChannel channel,
+    File? file,
+    String? name,
+  });
+
+  Future leaveChat({required BaseChannel channel});
 }
 
 class ChatRepositoryImpl extends ChatRepository {
@@ -80,7 +91,11 @@ class ChatRepositoryImpl extends ChatRepository {
 
   @override
   Future markChannelAsRead(BaseChannel channel) async {
-    if (channel is GroupChannel) channel.markAsRead();
+    try {
+      if (channel is GroupChannel) channel.markAsRead();
+    } catch (e) {
+      log(e.toString());
+    }
   }
 
   @override
@@ -106,11 +121,49 @@ class ChatRepositoryImpl extends ChatRepository {
   Future<FileMessage> sendFileMessage(
     BaseChannel channel,
     File file,
-    Function() success,
+    Function(BaseMessage message) success,
   ) async {
     final params = FileMessageParams.withFile(file);
-    return channel.sendFileMessage(params, onCompleted: (msg, error) {
-      success.call();
-    });
+    return channel.sendFileMessage(
+      params,
+      onCompleted: (msg, error) {
+        log('sent file succeed ${msg.url}');
+        success(msg);
+      },
+    );
+  }
+
+  @override
+  Future updateGroupChat({
+    required BaseChannel channel,
+    File? file,
+    String? name,
+  }) async {
+    try {
+      final params = GroupChannelParams(isUpdate: true);
+      if (name != null && name.isNotEmpty) {
+        params.name = name;
+      }
+
+      if (file != null) {
+        params.coverImage = FileInfo.fromData(
+          name: 'image',
+          file: file,
+          mimeType: 'image/jpeg',
+        );
+      }
+      await (channel as GroupChannel).updateChannel(params);
+    } catch (e) {
+      throw (AppConstants.unknownException);
+    }
+  }
+
+  @override
+  Future leaveChat({required BaseChannel channel}) async {
+    try {
+      await (channel as GroupChannel).leave();
+    } catch (e) {
+      throw (AppConstants.unknownException);
+    }
   }
 }

@@ -1,10 +1,19 @@
+import 'dart:io';
+
+import 'package:bloc_chat/data/repository/authentication_repository.dart';
 import 'package:bloc_chat/ui/chat_detail/bloc/chat_detail_bloc.dart';
+import 'package:bloc_chat/ui/chat_list/chat_list.dart';
+import 'package:bloc_chat/ui/chat_list/view/chat_list_screen.dart';
+import 'package:bloc_chat/ui/contact/bloc/contact_bloc.dart';
+import 'package:bloc_chat/ui/contact/view/contact_detail.dart';
 import 'package:bloc_chat/util/constants.dart';
+import 'package:bloc_chat/util/utils.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:sendbird_sdk/constant/enums.dart';
 import 'package:sendbird_sdk/core/channel/group/group_channel.dart';
 import 'package:sendbird_sdk/core/models/member.dart';
+import 'package:sendbird_sdk/sendbird_sdk.dart';
 
 class ChannelDetailScreen extends StatelessWidget {
   final BuildContext blocContext;
@@ -36,23 +45,96 @@ class _ChannelDetailScreen extends StatefulWidget {
 
 class _ChannelDetailScreenState extends State<_ChannelDetailScreen> {
   late final channel = BlocProvider.of<ChatDetailBloc>(context).group
-    ..members.sort((a, b) => a.nickname.compareTo(b.nickname));
+    ..members.sort((a, b) => a.nickname.compareTo(b.nickname))
+    ..members.sort((a, b) => a.role == Role.chat_operator ? -1 : 1);
   final textController = TextEditingController();
+  File? file;
 
   @override
   Widget build(BuildContext context) {
     if (textController.text.isEmpty) {
-      textController.text =
-          channel.name ?? ChatConstants.textDefaultGroupChatName;
+      textController.text = getNameChannel(channel);
     }
     return Scaffold(
       appBar: _buildAppBar(context),
-      body: Column(
-        children: [
-          _buildChannelCover(channel, context),
-          _buildTextFieldChannelName(),
-          _buildListViewMember(channel),
-        ],
+      body: BlocListener<ChatDetailBloc, ChatDetailState>(
+        listener: (context, state) {
+          if (state.status == ChatDetailStatus.updateChannelInProgress) {
+            ScaffoldMessenger.of(context)
+              ..hideCurrentMaterialBanner()
+              ..showSnackBar(const SnackBar(content: Text('Updating Group')));
+          } else if (state.status == ChatDetailStatus.updateChannelSuccess) {
+            ScaffoldMessenger.of(context)
+              ..hideCurrentMaterialBanner()
+              ..showSnackBar(const SnackBar(content: Text('Updated')));
+          } else if (state.status == ChatDetailStatus.updateChannelInProgress) {
+            ScaffoldMessenger.of(context)
+              ..hideCurrentMaterialBanner()
+              ..showSnackBar(
+                  const SnackBar(content: Text(AppConstants.unknownException)));
+          } else if (state.status == ChatDetailStatus.leaveChannelSuccess) {
+            Navigator.pop(context);
+            Navigator.pop(context);
+          }
+        },
+        child: Column(
+          children: [
+            _buildChannelCover(channel, context),
+            _buildTextFieldChannelName(),
+            const SizedBox(width: 8),
+            Align(
+              alignment: Alignment.center,
+              child: InkWell(
+                onTap: () {
+                  showDialog(
+                      context: context,
+                      builder: (context) {
+                        return AlertDialog(
+                          title: const Text('Are you sure to leave this chat?'),
+                          actions: [
+                            TextButton(
+                              onPressed: () {
+                                Navigator.pop(context);
+                                BlocProvider.of<ChatDetailBloc>(this.context)
+                                    .add(LeaveChatRequested());
+                              },
+                              child: const Text(
+                                'OK',
+                                style: TextStyle(
+                                  color: Colors.red,
+                                ),
+                              ),
+                            ),
+                          ],
+                        );
+                      });
+                },
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: const [
+                    Icon(
+                      Icons.exit_to_app,
+                      color: Colors.red,
+                      size: 26,
+                    ),
+                    Text(
+                      'Leave this chat',
+                      style: TextStyle(
+                        color: Colors.red,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+            const SizedBox(height: 8),
+            const Divider(
+              color: Colors.black,
+            ),
+            _buildListViewMember(channel),
+          ],
+        ),
       ),
     );
   }
@@ -81,7 +163,11 @@ class _ChannelDetailScreenState extends State<_ChannelDetailScreen> {
   }
 
   TextField _buildTextFieldChannelName() {
+    final currentUserId = channel.members.indexWhere(
+        (element) => element.userId == sendbird.currentUser!.userId);
     return TextField(
+      enabled: !channel.isDistinct &&
+          channel.members[currentUserId].role == Role.chat_operator,
       controller: textController,
       textAlign: TextAlign.center,
       maxLines: 1,
@@ -93,6 +179,8 @@ class _ChannelDetailScreenState extends State<_ChannelDetailScreen> {
   }
 
   Widget _buildChannelCover(GroupChannel channel, BuildContext context) {
+    final currentUserId = channel.members.indexWhere(
+        (element) => element.userId == sendbird.currentUser!.userId);
     return Container(
       padding: const EdgeInsets.only(
         top: 20,
@@ -103,19 +191,28 @@ class _ChannelDetailScreenState extends State<_ChannelDetailScreen> {
         child: Align(
           alignment: Alignment.topCenter,
           child: SizedBox(
-            width: MediaQuery.of(context).size.width * 0.3,
+            width: MediaQuery.of(context).size.height * 0.2,
             child: AspectRatio(
               aspectRatio: 1 / 1,
-              child: FittedBox(
-                fit: BoxFit.contain,
-                child: (channel.coverUrl != null)
-                    ? CircleAvatar(
-                        backgroundImage: NetworkImage(channel.coverUrl!),
-                      )
-                    : const CircleAvatar(
-                        backgroundImage:
-                            AssetImage('assets/images/group_cover_holder.png'),
-                      ),
+              child: GestureDetector(
+                onTap: (!channel.isDistinct &&
+                        channel.members[currentUserId].role ==
+                            Role.chat_operator)
+                    ? () async {
+                        final newFile = await getFile(context);
+                        setState(() {
+                          file = newFile;
+                        });
+                      }
+                    : null,
+                child: FittedBox(
+                  fit: BoxFit.contain,
+                  child: (file == null)
+                      ? getGroupAvatar(channel)
+                      : CircleAvatar(
+                          child: Image.file(file!),
+                        ),
+                ),
               ),
             ),
           ),
@@ -144,6 +241,26 @@ class _ChannelDetailScreenState extends State<_ChannelDetailScreen> {
                 ),
               ),
             ),
+            (textController.text == getNameChannel(channel) && file == null)
+                ? Container()
+                : Align(
+                    alignment: Alignment.centerRight,
+                    child: IconButton(
+                      onPressed: () {
+                        BlocProvider.of<ChatDetailBloc>(context).add(
+                          UpdateGroupChat(
+                            channel: channel,
+                            file: file,
+                            name: textController.text,
+                          ),
+                        );
+                      },
+                      icon: const Icon(
+                        Icons.check,
+                        color: Colors.white,
+                      ),
+                    ),
+                  ),
           ],
         ),
       ),
@@ -156,20 +273,49 @@ class _ChannelDetailScreenState extends State<_ChannelDetailScreen> {
     return Container(
       padding: const EdgeInsets.all(4),
       height: 40,
-      child: ListTile(
-          title: Text(name),
-          leading: _buildAvatarWidget(avatarUrl),
-          trailing: (member.connectionStatus == UserConnectionStatus.online)
-              ? const Icon(
-                  Icons.circle,
-                  color: Colors.green,
-                  size: 14,
-                )
-              : const Icon(
-                  Icons.circle,
-                  color: Colors.grey,
-                  size: 14,
-                )),
+      child: Row(
+        children: [
+          const SizedBox(
+            width: 8,
+          ),
+          _buildAvatarWidget(avatarUrl),
+          const SizedBox(
+            width: 8,
+          ),
+          Expanded(child: Text(name)),
+          Align(
+            alignment: Alignment.center,
+            child: Row(
+              children: [
+                (member.role == Role.chat_operator)
+                    ? const Image(
+                        image: AssetImage('assets/images/crown.png'),
+                        width: 14,
+                        height: 14,
+                      )
+                    : Container(),
+                const SizedBox(
+                  width: 2,
+                ),
+                (member.connectionStatus == UserConnectionStatus.online)
+                    ? const Icon(
+                        Icons.circle,
+                        color: Colors.green,
+                        size: 14,
+                      )
+                    : const Icon(
+                        Icons.circle,
+                        color: Colors.grey,
+                        size: 14,
+                      ),
+              ],
+            ),
+          ),
+          const SizedBox(
+            width: 8,
+          ),
+        ],
+      ),
     );
   }
 

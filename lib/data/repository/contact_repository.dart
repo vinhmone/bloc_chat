@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:bloc_chat/data/repository/authentication_repository.dart';
 import 'package:bloc_chat/util/constants.dart';
 import 'package:sendbird_sdk/sendbird_sdk.dart';
@@ -7,7 +9,7 @@ abstract class ContactRepository {
 
   Future<GroupChannel> createChannel({required List<User> users, String? name});
 
-  Future<GroupChannel> createPrivateChannel({required List<User> users});
+  Future<GroupChannel> createPrivateChannel({required User user});
 }
 
 class ContactRepositoryImpl extends ContactRepository {
@@ -32,7 +34,9 @@ class ContactRepositoryImpl extends ContactRepository {
     try {
       final userIds = users.map((u) => u.userId).toList();
       final params = GroupChannelParams();
-      params.userIds = userIds;
+      params
+        ..userIds = userIds
+        ..operatorUserIds = [sendbird.currentUser!.userId];
       if (name != null && name.isNotEmpty) {
         params.name = name;
       }
@@ -44,9 +48,9 @@ class ContactRepositoryImpl extends ContactRepository {
   }
 
   @override
-  Future<GroupChannel> createPrivateChannel({required List<User> users}) async {
+  Future<GroupChannel> createPrivateChannel({required User user}) async {
     try {
-      final userIds = users.map((u) => u.userId).toList();
+      final userIds = [sendbird.currentUser!.userId, user.userId];
       final params = GroupChannelParams();
       params
         ..userIds = userIds

@@ -1,4 +1,10 @@
+import 'dart:developer';
+
+import 'package:bloc_chat/ui/chat_detail/view/chat_detail_page.dart';
+import 'package:bloc_chat/ui/contact/bloc/contact_bloc.dart';
+import 'package:bloc_chat/util/constants.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:sendbird_sdk/sendbird_sdk.dart';
 
 class ContactDetail extends StatelessWidget {
@@ -11,34 +17,49 @@ class ContactDetail extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return SafeArea(
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.center,
-        children: [
-          _buildAvatarWidget(context, user.profileUrl ?? ''),
-          Text(
-            user.nickname,
-            textAlign: TextAlign.center,
-            style: const TextStyle(fontSize: 22),
-          ),
-          const SizedBox(height: 10),
-          InkWell(
-            onTap: () {},
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                const Text('Send Private Message'),
-                const SizedBox(
-                  width: 4,
-                ),
-                Icon(
-                  Icons.send,
-                  color: ThemeData.light().primaryColor,
-                ),
-              ],
+    return BlocListener<ContactBloc, ContactState>(
+      listener: (context, state) {
+        if (state.status == ContactStatus.createNewChatSuccess) {
+          log('Success');
+          Navigator.pop(context);
+          Navigator.push(
+            context,
+            ChatDetailPage.route(channel: state.channel!),
+          );
+        }
+      },
+      child: SizedBox(
+        height: MediaQuery.of(context).size.height * 0.3,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            _buildAvatarWidget(context, user.profileUrl ?? ''),
+            Text(
+              user.nickname,
+              textAlign: TextAlign.center,
+              style: const TextStyle(fontSize: 22),
             ),
-          )
-        ],
+            const SizedBox(height: 10),
+            InkWell(
+              onTap: () {
+                _sendPrivateMessage(context);
+              },
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  const Text(AppConstants.textSendMessage),
+                  const SizedBox(
+                    width: 4,
+                  ),
+                  Icon(
+                    Icons.send,
+                    color: ThemeData.light().primaryColor,
+                  ),
+                ],
+              ),
+            )
+          ],
+        ),
       ),
     );
   }
@@ -46,26 +67,24 @@ class ContactDetail extends StatelessWidget {
   Widget _buildAvatarWidget(BuildContext context, String avatarUrl) {
     return Flexible(
       child: Padding(
-        padding: const EdgeInsets.all(8.0),
+        padding: const EdgeInsets.all(16.0),
         child: SizedBox(
-          width: MediaQuery.of(context).size.width * 0.2,
+          height: MediaQuery.of(context).size.width * 0.2,
           child: AspectRatio(
             aspectRatio: 1 / 1,
             child: FittedBox(
               fit: BoxFit.contain,
               child: avatarUrl.isEmpty
-                  ? const CircleAvatar(
-                      child: Icon(Icons.person),
-                    )
-                  : CircleAvatar(
-                      backgroundImage: NetworkImage(
-                        avatarUrl,
-                      ),
-                    ),
+                  ? const CircleAvatar(child: Icon(Icons.person))
+                  : CircleAvatar(backgroundImage: NetworkImage(avatarUrl)),
             ),
           ),
         ),
       ),
     );
+  }
+
+  void _sendPrivateMessage(BuildContext context) {
+    BlocProvider.of<ContactBloc>(context).add(SendPrivateChat(user: user));
   }
 }

@@ -18,3 +18,12 @@ class CreateNewChat extends ContactEvent {
   @override
   List<Object?> get props => [users, name];
 }
+
+class SendPrivateChat extends ContactEvent {
+  final User user;
+
+  const SendPrivateChat({required this.user});
+
+  @override
+  List<Object?> get props => [user];
+}

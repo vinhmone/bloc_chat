@@ -93,6 +93,7 @@ class MessageItem extends StatelessWidget {
         child: Image(
           image: NetworkImage(
             (current as FileMessage).secureUrl ?? (current as FileMessage).url,
+            scale: 0.5,
           ),
         ),
       ),

@@ -4,7 +4,7 @@ abstract class ChatDetailEvent extends Equatable {
   const ChatDetailEvent();
 
   @override
-  List<Object> get props => [];
+  List<Object?> get props => [];
 }
 
 class LoadAllMessageRequested extends ChatDetailEvent {}
@@ -43,3 +43,18 @@ class LeaveChatRequested extends ChatDetailEvent {}
 class NewUserJoined extends ChatDetailEvent {}
 
 class UserLeaved extends ChatDetailEvent {}
+
+class UpdateGroupChat extends ChatDetailEvent {
+  final BaseChannel channel;
+  final File? file;
+  final String? name;
+
+  const UpdateGroupChat({
+    required this.channel,
+    this.file,
+    this.name,
+  });
+
+  @override
+  List<Object?> get props => [channel, file, name];
+}

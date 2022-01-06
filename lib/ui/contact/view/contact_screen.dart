@@ -127,9 +127,21 @@ class _ContactScreenState extends State<ContactScreen> {
       title: Text(name),
       leading: InkWell(
         onTap: () {
-          showModalBottomSheet(context: context, builder: (BuildContext bc) {
-            return ContactDetail(user: user);
-          });
+          showModalBottomSheet(
+            context: context,
+            backgroundColor: Colors.white,
+            shape: const RoundedRectangleBorder(
+                borderRadius: BorderRadius.only(
+                  topLeft: Radius.circular(10),
+                  topRight: Radius.circular(10),
+                )),
+            builder: (BuildContext bc) {
+              return BlocProvider<ContactBloc>(
+                create: (_) => BlocProvider.of<ContactBloc>(context),
+                child: ContactDetail(user: user),
+              );
+            },
+          );
         },
         customBorder: const CircleBorder(),
         child: _buildAvatarWidget(avatarUrl),
@@ -158,13 +170,13 @@ class _ContactScreenState extends State<ContactScreen> {
               fit: BoxFit.contain,
               child: avatarUrl.isEmpty
                   ? const CircleAvatar(
-                      child: Icon(Icons.person),
-                    )
+                child: Icon(Icons.person),
+              )
                   : CircleAvatar(
-                      backgroundImage: NetworkImage(
-                        avatarUrl,
-                      ),
-                    ),
+                backgroundImage: NetworkImage(
+                  avatarUrl,
+                ),
+              ),
             ),
           ),
         ),

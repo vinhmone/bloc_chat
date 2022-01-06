@@ -24,6 +24,7 @@ class AppConstants {
   static const String textSetting = "Setting";
   static const String textAllChat = 'All Chat';
   static const String textReceivedNewMessage = 'You have new messages!';
+  static const String textSendMessage = 'Send Message';
 }
 
 class SignInConstants {

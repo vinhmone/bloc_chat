@@ -1,5 +1,7 @@
+import 'package:bloc_chat/data/repository/authentication_repository.dart';
 import 'package:bloc_chat/util/constants.dart';
 import 'package:bloc_chat/util/extensions.dart';
+import 'package:bloc_chat/util/utils.dart';
 import 'package:flutter/material.dart';
 import 'package:sendbird_sdk/core/channel/group/group_channel.dart';
 import 'package:sendbird_sdk/core/message/file_message.dart';
@@ -39,14 +41,7 @@ class ChatListItem extends StatelessWidget {
           aspectRatio: 1 / 1,
           child: FittedBox(
             fit: BoxFit.contain,
-            child: (channel.coverUrl != null)
-                ? CircleAvatar(
-                    backgroundImage: NetworkImage(channel.coverUrl!),
-                  )
-                : const CircleAvatar(
-                    backgroundImage:
-                        AssetImage('assets/images/group_cover_holder.png'),
-                  ),
+            child: getGroupAvatar(channel),
           ),
         ),
       ),
@@ -70,7 +65,7 @@ class ChatListItem extends StatelessWidget {
             child: ConstrainedBox(
               constraints: const BoxConstraints.expand(),
               child: Text(
-                channel.name ?? ChatConstants.textDefaultGroupChatName,
+                getNameChannel(channel),
                 maxLines: 1,
                 textAlign: TextAlign.justify,
                 style: const TextStyle(

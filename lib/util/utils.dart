@@ -1,8 +1,12 @@
 import 'dart:async';
 import 'dart:io';
 
+import 'package:bloc_chat/data/repository/authentication_repository.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:sendbird_sdk/core/channel/group/group_channel.dart';
+
+import 'constants.dart';
 
 Future<File?> getFile(BuildContext context) {
   final wait = Completer<File?>();
@@ -67,4 +71,47 @@ Future<File?> _showPicker(ImageSource source) async {
     return File(pickedFile.path);
   }
   return null;
+}
+
+String getNameChannel(GroupChannel channel) {
+  String name = '';
+  if (!channel.isDistinct) {
+    name = channel.name ?? ChatConstants.textDefaultGroupChatName;
+  } else {
+    final list = channel.members;
+    final currentUserId = list.indexWhere(
+        (element) => element.userId == sendbird.currentUser!.userId);
+    final otherUserId = (currentUserId == 0) ? 1 : 0;
+    name = list[otherUserId].nickname;
+  }
+  return name;
+}
+
+Widget getGroupAvatar(GroupChannel channel) {
+  Widget widget = Container();
+  if (!channel.isDistinct) {
+    widget = (channel.coverUrl != null)
+        ? CircleAvatar(
+            backgroundImage: NetworkImage(channel.coverUrl!),
+          )
+        : const CircleAvatar(
+            backgroundImage: AssetImage('assets/images/group_cover_holder.png'),
+          );
+  } else {
+    final list = channel.members;
+    final currentUserId = list.indexWhere(
+        (element) => element.userId == sendbird.currentUser?.userId);
+    final otherUserId = (currentUserId == 0) ? 1 : 0;
+    final avatarUrl = list[otherUserId].profileUrl ?? '';
+    widget = avatarUrl.isEmpty
+        ? const CircleAvatar(
+            child: Icon(Icons.person),
+          )
+        : CircleAvatar(
+            backgroundImage: NetworkImage(
+              avatarUrl,
+            ),
+          );
+  }
+  return widget;
 }

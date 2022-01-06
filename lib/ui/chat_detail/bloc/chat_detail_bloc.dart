@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:developer';
 import 'dart:io';
 
 import 'package:bloc/bloc.dart';
@@ -26,6 +27,8 @@ class ChatDetailBloc extends Bloc<ChatDetailEvent, ChatDetailState>
     on<NewMessageReceived>(_newMessageReceived);
     on<SendTextMessageRequested>(_sendTextMessageRequested);
     on<SendFileMessageRequested>(_sendFileMessageRequested);
+    on<UpdateGroupChat>(_updateGroupChat);
+    on<LeaveChatRequested>(_leaveChatRequested);
     add(LoadAllMessageRequested());
     sendbird.addChannelEventHandler(
       SendbirdConstants.textIdentifierChatDetail,
@@ -37,6 +40,7 @@ class ChatDetailBloc extends Bloc<ChatDetailEvent, ChatDetailState>
     LoadAllMessageRequested event,
     Emitter<ChatDetailState> emit,
   ) async {
+    log('Load All Message');
     emit(state.copyWith(
       status: ChatDetailStatus.chatLoadInProgress,
     ));
@@ -61,8 +65,9 @@ class ChatDetailBloc extends Bloc<ChatDetailEvent, ChatDetailState>
     NewMessageReceived event,
     Emitter<ChatDetailState> emit,
   ) {
+    log('_newMessageReceived');
     if (group.channelUrl == event.channel.channelUrl) {
-      print(event.message.message);
+      log(event.message.message);
       var newList = [...state.listMessage]..insert(0, event.message);
       emit(state.copyWith(
         listMessage: newList,
@@ -72,11 +77,13 @@ class ChatDetailBloc extends Bloc<ChatDetailEvent, ChatDetailState>
   }
 
   @override
-  void onMessageReceived(BaseChannel channel, BaseMessage message) =>
-      add(NewMessageReceived(
-        channel: channel,
-        message: message,
-      ));
+  void onMessageReceived(BaseChannel channel, BaseMessage message) {
+    log('onMessageReceived');
+    add(NewMessageReceived(
+      channel: channel,
+      message: message,
+    ));
+  }
 
   @override
   void onUserLeaved(GroupChannel channel, User user) {}
@@ -86,7 +93,7 @@ class ChatDetailBloc extends Bloc<ChatDetailEvent, ChatDetailState>
     super.onReadReceiptUpdated(channel);
   }
 
-  Future sendTextMessage(String text) async {
+  void sendTextMessage(String text) async {
     if (text.isNotEmpty) {
       final message = await _repository.sendTextMessage(
         group,
@@ -94,7 +101,11 @@ class ChatDetailBloc extends Bloc<ChatDetailEvent, ChatDetailState>
         () => null,
         () => null,
       );
-      add(SendTextMessageRequested(message: message));
+      // add(SendTextMessageRequested(message: message));
+      add(NewMessageReceived(
+        channel: group,
+        message: message,
+      ));
     }
   }
 
@@ -113,13 +124,15 @@ class ChatDetailBloc extends Bloc<ChatDetailEvent, ChatDetailState>
     ));
   }
 
-  Future sendFileMessage(File file) async {
-    final message = await _repository.sendFileMessage(
+  void sendFileMessage(File file) {
+    _repository.sendFileMessage(
       group,
       file,
-      () => add(LoadAllMessageRequested()),
+      (BaseMessage message) => add(NewMessageReceived(
+        channel: group,
+        message: message,
+      )),
     );
-    print('Bloc: ${message.secureUrl}');
     // add(SendFileMessageRequested(message: message));
   }
 
@@ -127,7 +140,7 @@ class ChatDetailBloc extends Bloc<ChatDetailEvent, ChatDetailState>
     SendFileMessageRequested event,
     Emitter<ChatDetailState> emit,
   ) {
-    print('SendFileMessageRequested');
+    log('SendFileMessageRequested');
     emit(state.copyWith(
       status: ChatDetailStatus.messageSendInProgress,
     ));
@@ -137,6 +150,36 @@ class ChatDetailBloc extends Bloc<ChatDetailEvent, ChatDetailState>
       listMessage: list,
       status: ChatDetailStatus.newMessageReceived,
     ));
+  }
+
+  void _updateGroupChat(
+    UpdateGroupChat event,
+    Emitter<ChatDetailState> emit,
+  ) async {
+    try {
+      emit(state.copyWith(status: ChatDetailStatus.updateChannelInProgress));
+      await _repository.updateGroupChat(
+        channel: group,
+        file: event.file,
+        name: event.name,
+      );
+      emit(state.copyWith(status: ChatDetailStatus.updateChannelSuccess));
+    } catch (e) {
+      emit(state.copyWith(status: ChatDetailStatus.updateChannelFailure));
+    }
+  }
+
+  void _leaveChatRequested(
+    LeaveChatRequested event,
+    Emitter<ChatDetailState> emit,
+  ) async {
+    try {
+      emit(state.copyWith(status: ChatDetailStatus.leaveChannelInProgress));
+      await _repository.leaveChat(channel: group);
+      emit(state.copyWith(status: ChatDetailStatus.leaveChannelSuccess));
+    } catch (e) {
+      emit(state.copyWith(status: ChatDetailStatus.leaveChannelFailure));
+    }
   }
 
   @override

@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:bloc_chat/ui/chat_detail/bloc/chat_detail_bloc.dart';
 import 'package:bloc_chat/ui/chat_detail/view/channel_detail_screen.dart';
 import 'package:bloc_chat/util/utils.dart';
@@ -129,8 +131,7 @@ class _ChatDetailScreenState extends State<ChatDetailScreen> {
       child: Align(
         alignment: Alignment.centerLeft,
         child: Text(
-          BlocProvider.of<ChatDetailBloc>(context).group.name ??
-              ChatConstants.textDefaultGroupChatName,
+          getNameChannel(BlocProvider.of<ChatDetailBloc>(context).group),
           maxLines: 1,
           textAlign: TextAlign.justify,
           style: const TextStyle(
@@ -153,14 +154,7 @@ class _ChatDetailScreenState extends State<ChatDetailScreen> {
           aspectRatio: 1 / 1,
           child: FittedBox(
             fit: BoxFit.contain,
-            child: (channel.coverUrl != null)
-                ? CircleAvatar(
-                    backgroundImage: NetworkImage(channel.coverUrl!),
-                  )
-                : const CircleAvatar(
-                    backgroundImage:
-                        AssetImage('assets/images/group_cover_holder.png'),
-                  ),
+            child: getGroupAvatar(channel),
           ),
         ),
       ),

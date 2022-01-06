@@ -12,6 +12,12 @@ enum ChatDetailStatus {
   messageDeleted,
   messageReceiptedUpdated,
   newMessageReceived,
+  updateChannelInProgress,
+  updateChannelSuccess,
+  updateChannelFailure,
+  leaveChannelInProgress,
+  leaveChannelSuccess,
+  leaveChannelFailure,
 }
 
 class ChatDetailState extends Equatable {

@@ -1,3 +1,4 @@
+
 import 'package:bloc/bloc.dart';
 import 'package:bloc_chat/data/repository/contact_repository.dart';
 import 'package:bloc_chat/util/constants.dart';
@@ -5,7 +6,6 @@ import 'package:equatable/equatable.dart';
 import 'package:sendbird_sdk/sendbird_sdk.dart';
 
 part 'contact_event.dart';
-
 part 'contact_state.dart';
 
 class ContactBloc extends Bloc<ContactEvent, ContactState> {
@@ -16,6 +16,7 @@ class ContactBloc extends Bloc<ContactEvent, ContactState> {
         super(ContactState.initState) {
     on<LoadAllContact>(_loadAllContact);
     on<CreateNewChat>(_createNewChat);
+    on<SendPrivateChat>(_sendPrivateChat);
     add(LoadAllContact());
   }
 
@@ -49,6 +50,29 @@ class ContactBloc extends Bloc<ContactEvent, ContactState> {
       final channel = await _repository.createChannel(
         users: event.users,
         name: event.name,
+      );
+      emit(state.copyWith(
+        channel: channel,
+        status: ContactStatus.createNewChatSuccess,
+      ));
+    } catch (_) {
+      emit(state.copyWith(
+        status: ContactStatus.createNewChatFailure,
+        message: AppConstants.unknownException,
+      ));
+    }
+  }
+
+  void _sendPrivateChat(
+    SendPrivateChat event,
+    Emitter<ContactState> emit,
+  ) async {
+    emit(state.copyWith(
+      status: ContactStatus.createNewChatInProgress,
+    ));
+    try {
+      final channel = await _repository.createPrivateChannel(
+        user: event.user,
       );
       emit(state.copyWith(
         channel: channel,

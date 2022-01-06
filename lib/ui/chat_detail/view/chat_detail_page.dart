@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:bloc_chat/data/repository/chat_repository.dart';
 import 'package:bloc_chat/ui/chat_detail/bloc/chat_detail_bloc.dart';
 import 'package:flutter/material.dart';
@@ -23,6 +25,7 @@ class ChatDetailPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    log('Chat Detail Page');
     return RepositoryProvider(
       create: (context) => _repository,
       child: BlocProvider<ChatDetailBloc>(
