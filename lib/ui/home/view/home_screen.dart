@@ -1,14 +1,16 @@
+import 'package:bloc_chat/data/repository/authentication_repository.dart';
 import 'package:bloc_chat/data/repository/chat_repository.dart';
 import 'package:bloc_chat/data/repository/contact_repository.dart';
 import 'package:bloc_chat/ui/chat_list/chat_list.dart';
 import 'package:bloc_chat/ui/contact/view/contact_page.dart';
 import 'package:bloc_chat/ui/home/bloc/home_bloc.dart';
+import 'package:bloc_chat/ui/setting/setting.dart';
 import 'package:bloc_chat/util/constants.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 class HomeScreen extends StatefulWidget {
-  HomeScreen({Key? key}) : super(key: key);
+  const HomeScreen({Key? key}) : super(key: key);
 
   @override
   _HomeScreenState createState() => _HomeScreenState();
@@ -16,6 +18,7 @@ class HomeScreen extends StatefulWidget {
 
 const chatListPage = ChatListPage();
 const contactPage = ContactPage();
+const settingPage = SettingPage();
 
 class _HomeScreenState extends State<HomeScreen> {
   final ChatRepository _chatRepository = ChatRepositoryImpl();
@@ -42,19 +45,32 @@ class _HomeScreenState extends State<HomeScreen> {
           providers: [
             RepositoryProvider(create: (_) => _chatRepository),
             RepositoryProvider(create: (_) => _contactRepository),
+            RepositoryProvider(
+                create: (_) => context.read<AuthenticationRepository>()),
           ],
           child: bodyWidgets[_currentIndex],
         ),
-        bottomNavigationBar: BottomNavigationBar(
-          currentIndex: _currentIndex,
-          items: bottomBarItems,
-          onTap: (index) {
-            setState(
-              () {
-                _currentIndex = index;
-              },
-            );
-          },
+        bottomNavigationBar: Container(
+          decoration: const BoxDecoration(
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black,
+                blurRadius: 1,
+                offset: Offset(0.0, 0.75),
+              )
+            ]
+          ),
+          child: BottomNavigationBar(
+            currentIndex: _currentIndex,
+            items: bottomBarItems,
+            onTap: (index) {
+              setState(
+                () {
+                  _currentIndex = index;
+                },
+              );
+            },
+          ),
         ),
       ),
     );
@@ -63,9 +79,7 @@ class _HomeScreenState extends State<HomeScreen> {
   static List<Widget> bodyWidgets = [
     chatListPage,
     contactPage,
-    Container(
-      color: Colors.green,
-    ),
+    settingPage,
   ];
 
   static List<BottomNavigationBarItem> bottomBarItems = [

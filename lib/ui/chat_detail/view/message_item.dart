@@ -87,14 +87,35 @@ class MessageItem extends StatelessWidget {
   }
 
   Widget _buildFileMessageWidget(BuildContext context) {
+    final image = Hero(
+        tag: current.messageId,
+        child: Image(
+            image: NetworkImage(
+          (current as FileMessage).secureUrl ?? (current as FileMessage).url,
+          scale: 0.5,
+        )));
     return Flexible(
       child: SizedBox(
-        width: MediaQuery.of(context).size.width * 0.8,
-        child: Image(
-          image: NetworkImage(
-            (current as FileMessage).secureUrl ?? (current as FileMessage).url,
-            scale: 0.5,
-          ),
+        width: MediaQuery.of(context).size.width * 0.4,
+        child: InkWell(
+          onTap: () {
+            showDialog(
+                context: context,
+                barrierDismissible: true,
+                builder: (_) {
+                  return Container(
+                    padding: const EdgeInsets.all(22.0),
+                    child: SizedBox(
+                      width: MediaQuery.of(context).size.width * 0.4,
+                      child: FittedBox(
+                        fit: BoxFit.contain,
+                        child: image,
+                      ),
+                    ),
+                  );
+                });
+          },
+          child: image,
         ),
       ),
     );

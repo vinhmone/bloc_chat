@@ -117,6 +117,14 @@ class ChatListBloc extends Bloc<ChatListEvent, ChatListState>
   }
 
   @override
+  void onUserLeaved(GroupChannel channel, sendbird_user.User user) {
+    if (user.userId == sendbird.currentUser?.userId) {
+      add(const LoadChatListRequested(reload: true));
+    }
+    
+  }
+
+  @override
   Future<void> close() async {
     sendbird
         .removeChannelEventHandler(SendbirdConstants.textIdentifierChatList);

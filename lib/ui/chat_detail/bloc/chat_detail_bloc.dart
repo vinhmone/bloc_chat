@@ -145,7 +145,7 @@ class ChatDetailBloc extends Bloc<ChatDetailEvent, ChatDetailState>
       status: ChatDetailStatus.messageSendInProgress,
     ));
     List<BaseMessage> list = state.listMessage;
-    list.insert(0, event.message);
+    // list.insert(0, event.message);
     emit(state.copyWith(
       listMessage: list,
       status: ChatDetailStatus.newMessageReceived,

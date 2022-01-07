@@ -1,4 +1,6 @@
 import 'package:bloc_chat/data/repository/authentication_repository.dart';
+import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:sendbird_sdk/core/message/base_message.dart';
 
@@ -34,4 +36,15 @@ extension DateTimeX on DateTime {
       (a.day == day) &&
       (a.hour == hour) &&
       (a.minute == minute);
+}
+
+extension WidgetX on Widget {
+  void showSnackBar({
+    required BuildContext context,
+    required String message,
+  }) {
+    ScaffoldMessenger.of(context)
+      ..hideCurrentMaterialBanner()
+      ..showSnackBar(SnackBar(content: Text(message)));
+  }
 }

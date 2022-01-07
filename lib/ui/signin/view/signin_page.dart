@@ -12,6 +12,7 @@ class SignInPage extends StatelessWidget {
   Widget build(BuildContext context) {
     // context.read<AuthenticationRepository>().signout();
     return Scaffold(
+        resizeToAvoidBottomInset: false,
         body: BlocProvider<SigninBloc>(
       create: (_) => SigninBloc(repository: context.read()),
       child: const SigninForm(),

@@ -2,17 +2,10 @@ import 'dart:io';
 
 import 'package:bloc_chat/data/repository/authentication_repository.dart';
 import 'package:bloc_chat/ui/chat_detail/bloc/chat_detail_bloc.dart';
-import 'package:bloc_chat/ui/chat_list/chat_list.dart';
-import 'package:bloc_chat/ui/chat_list/view/chat_list_screen.dart';
-import 'package:bloc_chat/ui/contact/bloc/contact_bloc.dart';
-import 'package:bloc_chat/ui/contact/view/contact_detail.dart';
 import 'package:bloc_chat/util/constants.dart';
 import 'package:bloc_chat/util/utils.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:sendbird_sdk/constant/enums.dart';
-import 'package:sendbird_sdk/core/channel/group/group_channel.dart';
-import 'package:sendbird_sdk/core/models/member.dart';
 import 'package:sendbird_sdk/sendbird_sdk.dart';
 
 class ChannelDetailScreen extends StatelessWidget {
@@ -81,58 +74,67 @@ class _ChannelDetailScreenState extends State<_ChannelDetailScreen> {
           children: [
             _buildChannelCover(channel, context),
             _buildTextFieldChannelName(),
-            const SizedBox(width: 8),
-            Align(
-              alignment: Alignment.center,
-              child: InkWell(
-                onTap: () {
-                  showDialog(
-                      context: context,
-                      builder: (context) {
-                        return AlertDialog(
-                          title: const Text('Are you sure to leave this chat?'),
-                          actions: [
-                            TextButton(
-                              onPressed: () {
-                                Navigator.pop(context);
-                                BlocProvider.of<ChatDetailBloc>(this.context)
-                                    .add(LeaveChatRequested());
-                              },
-                              child: const Text(
-                                'OK',
-                                style: TextStyle(
-                                  color: Colors.red,
-                                ),
-                              ),
-                            ),
-                          ],
-                        );
-                      });
-                },
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: const [
-                    Icon(
-                      Icons.exit_to_app,
-                      color: Colors.red,
-                      size: 26,
-                    ),
-                    Text(
-                      'Leave this chat',
-                      style: TextStyle(
-                        color: Colors.red,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-            const SizedBox(height: 8),
+            (channel.isDistinct)
+                ? Container()
+                : Column(
+                    children: [
+                      _buildButtonLeave(context),
+                      const SizedBox(height: 8),
+                    ],
+                  ),
             const Divider(
               color: Colors.black,
             ),
             _buildListViewMember(channel),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildButtonLeave(BuildContext context) {
+    return Align(
+      alignment: Alignment.center,
+      child: InkWell(
+        onTap: () {
+          showDialog(
+              context: context,
+              builder: (context) {
+                return AlertDialog(
+                  title: const Text('Are you sure to leave this chat?'),
+                  actions: [
+                    TextButton(
+                      onPressed: () {
+                        Navigator.pop(context);
+                        BlocProvider.of<ChatDetailBloc>(this.context)
+                            .add(LeaveChatRequested());
+                      },
+                      child: const Text(
+                        'OK',
+                        style: TextStyle(
+                          color: Colors.red,
+                        ),
+                      ),
+                    ),
+                  ],
+                );
+              });
+        },
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: const [
+            Icon(
+              Icons.exit_to_app,
+              color: Colors.red,
+              size: 26,
+            ),
+            Text(
+              'Leave this chat',
+              style: TextStyle(
+                color: Colors.red,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
           ],
         ),
       ),
@@ -210,7 +212,7 @@ class _ChannelDetailScreenState extends State<_ChannelDetailScreen> {
                   child: (file == null)
                       ? getGroupAvatar(channel)
                       : CircleAvatar(
-                          child: Image.file(file!),
+                          backgroundImage: FileImage(file!),
                         ),
                 ),
               ),

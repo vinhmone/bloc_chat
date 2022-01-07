@@ -12,8 +12,8 @@ class SignUpPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
         body: BlocProvider<SignupBloc>(
-      create: (_) => SignupBloc(repository: context.read()),
-      child: const SignupForm(),
-    ));
+          create: (_) => SignupBloc(repository: context.read()),
+          child: const SignupForm(),
+        ));
   }
 }

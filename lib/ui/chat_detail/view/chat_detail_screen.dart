@@ -37,16 +37,23 @@ class _ChatDetailScreenState extends State<ChatDetailScreen> {
     return AppBar(
       elevation: 1,
       flexibleSpace: SafeArea(
-        child: Row(
-          children: [
-            BackButton(
-              color: Theme.of(context).primaryColor,
-            ),
-            const SizedBox(width: 2),
-            _buildChatImageCover(),
-            _buildAppBarChatName(),
-            _buildAppBarTailIcon(),
-          ],
+        child: BlocBuilder<ChatDetailBloc, ChatDetailState>(
+          buildWhen: (_, curr) {
+            return curr.status == ChatDetailStatus.updateChannelSuccess;
+          },
+          builder: (context, state) {
+            return Row(
+              children: [
+                BackButton(
+                  color: Theme.of(context).primaryColor,
+                ),
+                const SizedBox(width: 2),
+                _buildChatImageCover(),
+                _buildAppBarChatName(),
+                _buildAppBarTailIcon(),
+              ],
+            );
+          },
         ),
       ),
     );
